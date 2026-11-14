@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TrendIQ – Intelligent Trend Analysis System (Prototype)</title>
+<style>
+:root{--or:#F97316;--dor:#C2410C;--ink:#2B1A0E;--mute:#7A6355;--tint:#FFF1E6;--bg:#FFF8F3;--line:#F3D9C6;--ok:#16A34A;--bad:#DC2626}
+*{box-sizing:border-box}
+body{margin:0;font-family:Calibri,Arial,sans-serif;background:var(--bg);color:var(--ink);display:flex;min-height:100vh}
+h1,h2,h3,.brand{font-family:Georgia,'Times New Roman',serif}
+aside{width:230px;background:#fff;border-right:1px solid var(--line);padding:22px 14px;position:sticky;top:0;height:100vh;flex-shrink:0}
+.brand{font-size:24px;font-weight:700;padding:0 10px 4px}
+.brand span{color:var(--or)}
+.tag{font-size:11px;color:var(--mute);padding:0 10px 22px}
+aside button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:12px 14px;border-radius:10px;font-size:15px;color:var(--ink);cursor:pointer;margin-bottom:4px}
+aside button:hover{background:var(--tint)}
+aside button.on{background:var(--or);color:#fff;font-weight:700}
+.content{flex:1;padding:26px 30px 60px;min-width:0;max-width:1100px}
+.top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.top h1{margin:0;font-size:28px}
+.pill{background:var(--tint);color:var(--dor);padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px}
+.k{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.k .l{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.8px}
+.k .v{font-size:26px;font-weight:700;margin-top:4px}
+.up{color:var(--ok)}.down{color:var(--bad)}.flat{color:var(--mute)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px}
+.panel h3{margin:0 0 12px;font-size:18px}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.ctl label{display:block;font-size:13px;color:var(--mute)}
+.ctl b{color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--or)}
+select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px;font:inherit;background:#fff;color:var(--ink)}
+textarea{resize:vertical}
+.btn{background:var(--or);color:#fff;border:0;border-radius:10px;padding:10px 18px;font-weight:700;cursor:pointer;font-size:14px}
+.btn.alt{background:var(--tint);color:var(--dor)}
+.insight{background:var(--tint);border-radius:12px;padding:14px 16px;line-height:1.55;font-size:15px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin-top:8px}
+.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:6px;border-radius:2px}
+svg text{fill:#7A6355;font-size:11px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--mute);font-weight:600}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#fff}
+.Positive{background:var(--ok)}.Negative{background:var(--bad)}.Neutral{background:#A8A29E}
+.hide{display:none}
+.bar{height:10px;background:var(--tint);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--or)}
+.flow{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+.step{flex:1;min-width:150px;background:var(--tint);border-radius:12px;padding:14px}
+.step b{display:block;font-family:Georgia,serif;color:var(--dor);margin-bottom:6px}
+.step small{color:var(--mute)}
+.arrow{align-self:center;color:var(--or);font-size:22px}
+.note{font-size:12px;color:var(--mute);margin-top:16px}
+@media(max-width:760px){body{flex-direction:column}aside{width:100%;height:auto;position:static;display:flex;flex-wrap:wrap;gap:6px;padding:12px}aside .tag{display:none}aside button{width:auto}.content{padding:18px 14px}}
+
+/* ---------- auth ---------- */
+body.locked aside,body.locked .content{display:none}
+#auth{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,#FFF1E6,#FED7AA);padding:16px;z-index:50}
+body.locked #auth{display:flex}
+.authbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px 26px;width:100%;max-width:400px;box-shadow:0 20px 50px rgba(194,65,12,.15)}
+.authbox .brand{font-size:30px;padding:0;text-align:center}
+.authbox .sub{text-align:center;color:var(--mute);font-size:13px;margin:2px 0 18px}
+.tabs{display:flex;background:var(--tint);border-radius:12px;padding:4px;margin-bottom:16px}
+.tabs button{flex:1;border:0;background:transparent;padding:9px;border-radius:9px;font-weight:700;color:var(--dor);cursor:pointer;font-size:14px}
+.tabs button.on{background:var(--or);color:#fff}
+.authbox label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+.authbox input[type=text],.authbox input[type=email],.authbox input[type=password]{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;color:var(--ink)}
+.authbox input:focus{outline:2px solid var(--or);border-color:var(--or)}
+.pw{position:relative}.pw span{position:absolute;right:10px;top:9px;font-size:12px;color:var(--dor);cursor:pointer;font-weight:700;user-select:none}
+.row{display:flex;align-items:center;justify-content:space-between;margin:12px 0;font-size:13px;color:var(--mute)}
+.authbox .btn{width:100%;padding:12px}
+#authMsg{min-height:20px;font-size:13px;color:var(--bad);margin-top:10px;text-align:center}
+#authMsg.ok{color:var(--ok)}
+.demo{margin-top:14px;font-size:12px;color:var(--mute);text-align:center;background:var(--tint);border-radius:10px;padding:8px}
+.demo a{color:var(--dor);font-weight:700;cursor:pointer}
+.userbox{margin-top:22px;padding:14px 10px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)}
+.userbox b{display:block;color:var(--ink);font-size:14px;word-break:break-all}
+.userbox .btn{margin-top:10px;width:100%;padding:8px}
+.or{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:12px;margin:14px 0}
+.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
+.gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#3c4043;border:1px solid #dadce0;border-radius:10px;padding:11px;font-weight:700;font-size:14px;cursor:pointer}
+.gbtn:hover{background:#f8f9fa}
+.gbtn b{font-family:Arial,sans-serif;font-size:18px;background:conic-gradient(from -45deg,#ea4335 0 25%,#fbbc05 0 50%,#34a853 0 75%,#4285f4 0);-webkit-background-clip:text;background-clip:text;color:transparent}
+#gReal{display:flex;justify-content:center}
+#gDemo{margin-top:12px;border:1px dashed var(--or);border-radius:12px;padding:12px;background:var(--bg)}
+#gDemo small{display:block;color:var(--mute);font-size:11px;margin-bottom:4px}
+</style>
+</head>
+<body class="locked">
+
+<!-- AUTH (Sign in / Sign up) -->
+<div id="auth">
+  <div class="authbox">
+    <div class="brand">Trend<span>IQ</span></div>
+    <div class="sub">Intelligent Trend Analysis System</div>
+    <div class="tabs"><button id="tabIn" class="on" type="button">Sign in</button><button id="tabUp" type="button">Create account</button></div>
+    <div id="fName" class="hide"><label for="aName">Full name</label><input type="text" id="aName" autocomplete="name" placeholder="Selvakumar"></div>
+    <label for="aEmail">Email</label><input type="email" id="aEmail" autocomplete="email" placeholder="you@example.com">
+    <label for="aPass">Password</label><div class="pw"><input type="password" id="aPass" autocomplete="current-password" placeholder="Min 6 characters"><span id="togPw">Show</span></div>
+    <div id="fConf" class="hide"><label for="aConf">Confirm password</label><input type="password" id="aConf" autocomplete="new-password" placeholder="Re-enter password"></div>
+    <div class="row"><label style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" id="aRem" checked> Remember me</label></div>
+    <button class="btn" id="aGo" type="button">Sign in</button>
+    <div id="authMsg"></div>
+    <div class="or" id="orRow">or</div>
+    <div id="gReal"></div>
+    <button class="gbtn" id="gBtn" type="button"><b>G</b> Continue with Google</button>
+    <div id="gDemo" class="hide">
+      <small>Demo mode: Google Client ID set aagala, so idhu simulation. Real Google login-ku script-la GOOGLE_CLIENT_ID podunga.</small>
+      <label for="gName" style="margin-top:6px">Google account name</label><input type="text" id="gName" placeholder="Selvakumar">
+      <label for="gEmail">Google email</label><input type="email" id="gEmail" placeholder="you@gmail.com">
+      <button class="btn" id="gGo" type="button" style="margin-top:12px">Continue</button>
+    </div>
+    <div class="demo" id="demoBox">Try demo: <a id="demoFill">demo@trendiq.com / demo123</a></div>
+  </div>
+</div>
+<aside>
+  <div class="brand">Trend<span>IQ</span></div>
+  <div class="tag">Intelligent Trend Analysis System</div>
+  <button class="on" data-v="dash">Trend Dashboard</button>
+  <button data-v="anom">Anomaly Log</button>
+  <button data-v="sent">Sentiment Trends</button>
+  <button data-v="arch">How It Works</button>
+  <button data-v="admin" id="adminBtn" class="hide">Admin Users</button>
+  <div class="userbox"><span>Signed in as</span><b id="uName"></b><button class="btn alt" id="logout" type="button">Log out</button></div>
+</aside>
+<div class="content">
+
+<!-- DASHBOARD -->
+<section id="dash">
+  <div class="top"><h1 id="title">Trend Dashboard</h1><span class="pill" id="dsPill">Monthly Sales</span></div>
+  <div class="panel">
+    <h3>Data &amp; model settings</h3>
+    <div class="ctl">
+      <div><label>Dataset</label><select id="ds"><option value="sales">Monthly Sales (24 months)</option><option value="stock">Stock Price (60 days)</option><option value="web">Website Visitors (30 days)</option><option value="custom">My own data (paste below)</option></select></div>
+      <div><label>Moving average window: <b id="wv">5</b></label><input type="range" id="w" min="3" max="12" value="5"></div>
+      <div><label>Forecast horizon: <b id="hv">6</b> periods</label><input type="range" id="h" min="3" max="12" value="6"></div>
+      <div><label>Anomaly sensitivity: <b id="kv">2.0</b>σ</label><input type="range" id="k" min="1.5" max="3.5" step="0.1" value="2"></div>
+    </div>
+    <div style="margin-top:14px"><label style="font-size:13px;color:var(--mute)">Paste your own numbers (comma, space or new line separated, at least 12 values)</label>
+      <textarea id="raw" rows="2" placeholder="e.g. 120, 132, 128, 140, 151, 149, 160, 172, 168"></textarea>
+      <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="useRaw">Analyse my data</button><span id="rawMsg" style="font-size:13px;color:var(--mute);align-self:center"></span></div></div>
+  </div>
+  <div class="cards" id="kpis"></div>
+  <div class="panel">
+    <h3>Trend chart with forecast</h3>
+    <svg id="chart" viewBox="0 0 760 340" width="100%"></svg>
+    <div class="legend"><span><i style="background:#F97316"></i>Actual</span><span><i style="background:#2B1A0E"></i>Moving average</span><span><i style="background:#FDBA74"></i>Forecast + range</span><span><i style="background:#DC2626;height:8px;width:8px;border-radius:50%"></i>Anomaly</span></div>
+  </div>
+  <div class="panel"><h3>AI insight</h3><div class="insight" id="insight"></div></div>
+</section>
+
+<!-- ANOMALIES -->
+<section id="anom" class="hide">
+  <div class="top"><h1>Anomaly Log</h1><span class="pill" id="aPill"></span></div>
+  <div class="panel"><div class="insight" id="aInfo"></div>
+  <table style="margin-top:14px"><thead><tr><th>Period</th><th>Value</th><th>Expected</th><th>Deviation</th><th>Type</th></tr></thead><tbody id="aBody"></tbody></table></div>
+</section>
+
+<!-- SENTIMENT -->
+<section id="sent" class="hide">
+  <div class="top"><h1>Sentiment Trends</h1><span class="pill">NLP demo</span></div>
+  <div class="panel"><h3>Public opinion text (one post per line)</h3>
+    <textarea id="txt" rows="7"></textarea>
+    <div style="margin-top:10px"><button class="btn" id="runS">Analyse sentiment</button> <button class="btn alt" id="resetS">Reset sample</button></div></div>
+  <div class="panel"><h3>Overall mood</h3><div id="sSum"></div></div>
+  <div class="panel"><h3>Trending topics</h3><div id="sTop"></div></div>
+  <div class="panel"><h3>Per-post results</h3><table><tbody id="sRows"></tbody></table></div>
+</section>
+
+<!-- ARCH -->
+<section id="arch" class="hide">
+  <div class="top"><h1>How It Works</h1><span class="pill">System design</span></div>
+  <div class="panel"><h3>Pipeline</h3>
+    <div class="flow">
+      <div class="step"><b>1 · Collect</b><small>CSV, pasted data, APIs, social posts</small></div><div class="arrow">→</div>
+      <div class="step"><b>2 · Clean</b><small>Parse numbers, drop blanks, validate length</small></div><div class="arrow">→</div>
+      <div class="step"><b>3 · Analyse</b><small>Moving average, trend slope, z-score anomalies, sentiment lexicon</small></div><div class="arrow">→</div>
+      <div class="step"><b>4 · Forecast</b><small>Holt linear exponential smoothing with a widening range</small></div><div class="arrow">→</div>
+      <div class="step"><b>5 · Visualise</b><small>Charts, KPIs, alerts and plain-language insights</small></div>
+    </div></div>
+  <div class="panel"><h3>Methods used in this prototype</h3>
+    <table><tbody>
+      <tr><th>Trend direction</th><td>Least-squares slope compared with the series average</td></tr>
+      <tr><th>Forecast</th><td>Holt double exponential smoothing (level + trend)</td></tr>
+      <tr><th>Anomalies</th><td>Points whose gap from the centred moving average exceeds k standard deviations</td></tr>
+      <tr><th>Sentiment</th><td>Word-list scoring with simple negation handling</td></tr>
+    </tbody></table></div>
+</section>
+
+<!-- ADMIN -->
+<section id="admin" class="hide">
+  <div class="top"><h1>Admin Users</h1><span class="pill" id="uCount"></span></div>
+  <div class="panel"><div class="insight">Only the admin email can see this page. It lists accounts created in <b>this browser</b> (prototype storage).</div>
+  <table style="margin-top:14px"><thead><tr><th>Name</th><th>Email</th><th>Type</th><th></th></tr></thead><tbody id="uBody"></tbody></table></div>
+</section>
+
+<p class="note">Prototype note: sample datasets are simulated. The models are classical, transparent statistical methods chosen to demonstrate the concept; a production system would add ML/LSTM models, live data connectors and validation on real data.</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const fmt=n=>Math.abs(n)>=1000?n.toLocaleString(undefined,{maximumFractionDigits:0}):(+n.toFixed(1)).toString();
+
+/* ---------- sample data ---------- */
+let seed=42;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function gen(kind){
+  seed=42;let v=[],l=[];
+  if(kind==='sales'){for(let i=0;i<24;i++){v.push(100+i*4+18*Math.sin(2*Math.PI*i/12)+(rnd()-.5)*12+(i===15?55:0));l.push(MON[i%12]+(i<12?" '24":" '25"));}}
+  if(kind==='stock'){let p=250;for(let i=0;i<60;i++){p+=0.5+(rnd()-.5)*6-(i===40?28:0);v.push(p);l.push('Day '+(i+1));}}
+  if(kind==='web'){for(let i=0;i<30;i++){const wk=(i%7>=5)?-250:0;v.push(1200+i*18+wk+(rnd()-.5)*140+(i===20?1700:0));l.push('Day '+(i+1));}}
+  return{v,l};
+}
+let data=gen('sales'),dsName='Monthly Sales';
+
+/* ---------- analytics ---------- */
+function mean(a){return a.reduce((x,y)=>x+y,0)/a.length}
+function sd(a){const m=mean(a);return Math.sqrt(mean(a.map(x=>(x-m)**2)))}
+function cma(v,w){const h=Math.floor(w/2);return v.map((_,i)=>{const a=Math.max(0,i-h),b=Math.min(v.length-1,i+h);return mean(v.slice(a,b+1))})}
+function slope(v){const n=v.length,xm=(n-1)/2,ym=mean(v);let nu=0,de=0;v.forEach((y,i)=>{nu+=(i-xm)*(y-ym);de+=(i-xm)**2});return nu/de}
+function holt(v,H){const a=.5,b=.3;let lv=v[0],tr=v[1]-v[0];const res=[];
+  for(let i=1;i<v.length;i++){const pred=lv+tr;res.push(v[i]-pred);const pl=lv;lv=a*v[i]+(1-a)*(lv+tr);tr=b*(lv-pl)+(1-b)*tr;}
+  const s=sd(res),f=[];for(let h=1;h<=H;h++){const m=lv+h*tr;f.push({m,lo:m-s*(1+.35*h),hi:m+s*(1+.35*h)});}return f;}
+function analyse(){
+  const v=data.v,w=+$('#w').value,H=+$('#h').value,k=+$('#k').value;
+  const ma=cma(v,w),dev=v.map((y,i)=>y-ma[i]),s=sd(dev);
+  const an=[];dev.forEach((d,i)=>{if(Math.abs(d)>k*s)an.push({i,d,exp:ma[i]})});
+  const f=holt(v,H),sl=slope(v),rel=sl*v.length/mean(v);
+  const dir=rel>0.05?'up':rel<-0.05?'down':'flat';
+  return{v,ma,an,f,sl,dir,H,chg:(v[v.length-1]-v[0])/v[0]*100,vol:sd(v)/mean(v)*100};
+}
+
+/* ---------- rendering ---------- */
+function render(){
+  const A=analyse(),n=data.v.length,H=A.H;
+  $('#wv').textContent=$('#w').value;$('#hv').textContent=$('#h').value;$('#kv').textContent=(+$('#k').value).toFixed(1);
+  $('#dsPill').textContent=dsName;
+  const dirTxt={up:'Upward ▲',down:'Downward ▼',flat:'Stable ●'}[A.dir];
+  const last=data.v[n-1],fEnd=A.f[H-1].m;
+  $('#kpis').innerHTML=[
+    ['Latest value',fmt(last),''],['Overall change',(A.chg>=0?'+':'')+A.chg.toFixed(1)+'%',A.chg>=0?'up':'down'],
+    ['Trend',dirTxt,A.dir],['Forecast +'+H,fmt(fEnd),fEnd>=last?'up':'down'],['Anomalies',A.an.length,A.an.length?'down':'up'],['Volatility',A.vol.toFixed(1)+'%','flat']
+  ].map(x=>`<div class="k"><div class="l">${x[0]}</div><div class="v ${x[2]}">${x[1]}</div></div>`).join('');
+  drawChart(A);
+  const first=A.an.length?`The system flagged ${A.an.length} unusual point${A.an.length>1?'s':''} (first at <b>${data.l[A.an[0].i]}</b>), worth checking for one-off events. `:'No unusual spikes or drops were detected at this sensitivity. ';
+  $('#insight').innerHTML=`<b>${dsName}</b> shows an <b>${A.dir==='up'?'upward':A.dir==='down'?'downward':'stable'}</b> trend, changing <b>${A.chg>=0?'+':''}${A.chg.toFixed(1)}%</b> from start to latest. ${first}The model projects about <b>${fmt(fEnd)}</b> after ${H} more periods (range ${fmt(A.f[H-1].lo)} to ${fmt(A.f[H-1].hi)}). Volatility is ${A.vol<8?'low':A.vol<18?'moderate':'high'}, so forecast confidence is ${A.vol<8?'strong':A.vol<18?'fair':'limited'}.`;
+  // anomalies view
+  $('#aPill').textContent=A.an.length+' found';
+  $('#aInfo').textContent=A.an.length?`Points whose gap from the moving average is more than ${(+$('#k').value).toFixed(1)} standard deviations are flagged. Adjust sensitivity on the dashboard.`:'No anomalies at the current sensitivity. Try lowering sensitivity on the dashboard.';
+  $('#aBody').innerHTML=A.an.map(a=>`<tr><td>${data.l[a.i]}</td><td>${fmt(data.v[a.i])}</td><td>${fmt(a.exp)}</td><td>${a.d>=0?'+':''}${fmt(a.d)}</td><td><span class="badge ${a.d>=0?'Negative':'Neutral'}">${a.d>=0?'Spike':'Drop'}</span></td></tr>`).join('')||'<tr><td colspan="5">Nothing to show.</td></tr>';
+}
+function drawChart(A){
+  const W=760,Ht=340,L=52,R=16,T=14,B=34,n=data.v.length,H=A.H,tot=n+H;
+  const all=[...data.v,...A.ma,...A.f.map(x=>x.lo),...A.f.map(x=>x.hi)];
+  let mn=Math.min(...all),mx=Math.max(...all);const pad=(mx-mn)*.08;mn-=pad;mx+=pad;
+  const X=i=>L+i*(W-L-R)/(tot-1),Y=v=>T+(1-(v-mn)/(mx-mn))*(Ht-T-B);
+  let g='';
+  for(let t=0;t<=4;t++){const val=mn+(mx-mn)*t/4,y=Y(val);g+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#F3D9C6"/><text x="${L-8}" y="${y+4}" text-anchor="end">${fmt(val)}</text>`;}
+  const step=Math.ceil(tot/8);
+  for(let i=0;i<tot;i+=step){const lab=i<n?data.l[i]:'+'+(i-n+1);g+=`<text x="${X(i)}" y="${Ht-10}" text-anchor="middle">${lab}</text>`;}
+  // forecast band
+  const up=A.f.map((p,j)=>`${X(n+j)},${Y(p.hi)}`),lo=A.f.map((p,j)=>`${X(n+j)},${Y(p.lo)}`).reverse();
+  g+=`<polygon points="${X(n-1)},${Y(data.v[n-1])} ${up.join(' ')} ${lo.join(' ')}" fill="#FDBA74" opacity=".35"/>`;
+  g+=`<polyline fill="none" stroke="#FDBA74" stroke-width="3" stroke-dasharray="6 4" points="${X(n-1)},${Y(data.v[n-1])} ${A.f.map((p,j)=>`${X(n+j)},${Y(p.m)}`).join(' ')}"/>`;
+  g+=`<polyline fill="none" stroke="#2B1A0E" stroke-width="2" stroke-dasharray="3 3" points="${A.ma.map((y,i)=>`${X(i)},${Y(y)}`).join(' ')}"/>`;
+  g+=`<polyline fill="none" stroke="#F97316" stroke-width="3" points="${data.v.map((y,i)=>`${X(i)},${Y(y)}`).join(' ')}"/>`;
+  data.v.forEach((y,i)=>{g+=`<circle cx="${X(i)}" cy="${Y(y)}" r="${n>40?2:3.5}" fill="#fff" stroke="#F97316" stroke-width="2"><title>${data.l[i]}: ${fmt(y)}</title></circle>`});
+  A.an.forEach(a=>{g+=`<circle cx="${X(a.i)}" cy="${Y(data.v[a.i])}" r="7" fill="#DC2626" opacity=".85"><title>Anomaly ${data.l[a.i]}: ${fmt(data.v[a.i])}</title></circle>`});
+  A.f.forEach((p,j)=>{g+=`<circle cx="${X(n+j)}" cy="${Y(p.m)}" r="3" fill="#FDBA74"><title>Forecast +${j+1}: ${fmt(p.m)}</title></circle>`});
+  $('#chart').innerHTML=g;
+}
+
+/* ---------- controls ---------- */
+['w','h','k'].forEach(id=>$('#'+id).addEventListener('input',render));
+$('#ds').addEventListener('change',e=>{
+  const v=e.target.value;
+  if(v==='custom'){$('#rawMsg').textContent='Paste numbers below and press "Analyse my data".';return;}
+  data=gen(v);dsName={sales:'Monthly Sales',stock:'Stock Price',web:'Website Visitors'}[v];render();
+});
+$('#useRaw').addEventListener('click',()=>{
+  const nums=$('#raw').value.split(/[\s,;]+/).map(Number).filter(x=>!isNaN(x)&&isFinite(x)&&x!==0||x===0).filter(x=>!isNaN(x));
+  const clean=$('#raw').value.split(/[\s,;]+/).filter(s=>s!=='').map(Number);
+  if(clean.length<12||clean.some(isNaN)){$('#rawMsg').textContent='Please enter at least 12 valid numbers.';return;}
+  data={v:clean,l:clean.map((_,i)=>'#'+(i+1))};dsName='My data';$('#ds').value='custom';$('#rawMsg').textContent=clean.length+' values loaded.';render();
+});
+
+/* ---------- sentiment ---------- */
+const POS='good great excellent amazing love loved best happy fast easy useful smart improved growth win wonderful awesome fantastic helpful accurate reliable'.split(' ');
+const NEG='bad poor worst hate hated slow hard useless broken failed fail drop decline terrible awful expensive buggy confusing wrong delay'.split(' ');
+const STOP=new Set('the a an and or is are was were it this that to of in on for with at by be as i we you they my our so very just not but have has had will can from your its'.split(' '));
+const SAMPLE=`The new analytics dashboard is amazing and very easy to use
+Forecast accuracy is great, love the trend charts
+Reports are slow and the app is buggy today
+Terrible update, the export feature is broken
+Pricing is expensive but the alerts are really useful
+Not good, sales trend drop was not detected
+Fast, reliable and smart anomaly alerts, best tool this year
+The sentiment feature is helpful for tracking customer mood`;
+$('#txt').value=SAMPLE;
+function scoreLine(t){const ws=t.toLowerCase().replace(/[^a-z\s]/g,' ').split(/\s+/).filter(Boolean);let s=0;
+  ws.forEach((w,i)=>{const neg=ws[i-1]==='not'||ws[i-1]==='never';if(POS.includes(w))s+=neg?-1:1;if(NEG.includes(w))s+=neg?1:-1;});
+  return s;}
+function runSent(){
+  const lines=$('#txt').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  const res=lines.map(t=>{const s=scoreLine(t);return{t,s,l:s>0?'Positive':s<0?'Negative':'Neutral'}});
+  const c={Positive:0,Negative:0,Neutral:0};res.forEach(r=>c[r.l]++);const tot=res.length||1;
+  const colr={Positive:'#16A34A',Negative:'#DC2626',Neutral:'#A8A29E'};
+  $('#sSum').innerHTML=['Positive','Negative','Neutral'].map(k=>`<div style="margin:8px 0;font-size:14px;display:flex;justify-content:space-between"><span>${k}</span><span>${c[k]} · ${Math.round(c[k]/tot*100)}%</span></div><div class="bar"><i style="width:${c[k]/tot*100}%;background:${colr[k]}"></i></div>`).join('');
+  const freq={};res.forEach(r=>r.t.toLowerCase().replace(/[^a-z\s]/g,' ').split(/\s+/).forEach(w=>{if(w.length>3&&!STOP.has(w)&&!POS.includes(w)&&!NEG.includes(w))freq[w]=(freq[w]||0)+1}));
+  const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,6),mx=top.length?top[0][1]:1;
+  $('#sTop').innerHTML=top.map(([w,n])=>`<div style="margin:8px 0;font-size:14px;display:flex;justify-content:space-between"><span>#${w}</span><span>${n}</span></div><div class="bar"><i style="width:${n/mx*100}%"></i></div>`).join('')||'<div class="insight">Add more text to see topics.</div>';
+  $('#sRows').innerHTML=res.map(r=>`<tr><td>${r.t.replace(/</g,'&lt;')}</td><td style="white-space:nowrap"><span class="badge ${r.l}">${r.l}</span></td></tr>`).join('');
+}
+$('#runS').addEventListener('click',runSent);
+$('#resetS').addEventListener('click',()=>{$('#txt').value=SAMPLE;runSent();});
+
+/* ---------- nav ---------- */
+document.querySelectorAll('aside button[data-v]').forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.v==='admin')renderUsers();
+  document.querySelectorAll('aside button[data-v]').forEach(x=>x.classList.toggle('on',x===b));
+  ['dash','anom','sent','arch','admin'].forEach(v=>$('#'+v).classList.toggle('hide',v!==b.dataset.v));
+}));
+render();runSent();
+
+/* ---------- auth (client-side prototype) ---------- */
+const USERS_KEY='trendiq_users',SESSION_KEY='trendiq_session';
+const store=(()=>{try{localStorage.setItem('_t','1');localStorage.removeItem('_t');return localStorage}catch(e){const m={};return{getItem:k=>m[k]??null,setItem:(k,v)=>{m[k]=String(v)},removeItem:k=>{delete m[k]}}}})();
+async function hashPw(p,salt){
+  const s=salt+':'+p;
+  try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+  catch(e){let h=5381;for(const c of s)h=((h<<5)+h+c.charCodeAt(0))>>>0;return 'x'+h.toString(16)}
+}
+const getUsers=()=>{try{return JSON.parse(store.getItem(USERS_KEY))||{}}catch(e){return{}}};
+const saveUsers=u=>store.setItem(USERS_KEY,JSON.stringify(u));
+async function seedDemo(){const u=getUsers();if(!u['demo@trendiq.com']){u['demo@trendiq.com']={name:'Demo User',salt:'demo',hash:await hashPw('demo123','demo')};saveUsers(u);}}
+let mode='in';
+function setMode(m){
+  mode=m;$('#tabIn').classList.toggle('on',m==='in');$('#tabUp').classList.toggle('on',m==='up');
+  $('#fName').classList.toggle('hide',m!=='up');$('#fConf').classList.toggle('hide',m!=='up');
+  $('#aGo').textContent=m==='in'?'Sign in':'Create account';$('#demoBox').classList.toggle('hide',m!=='in');
+  $('#aPass').autocomplete=m==='in'?'current-password':'new-password';msg('');
+}
+function msg(t,ok){const e=$('#authMsg');e.textContent=t;e.className=ok?'ok':''}
+function enter(email,name,remember){
+  (remember?store:sessionStorage).setItem(SESSION_KEY,JSON.stringify({email,name}));
+  $('#uName').textContent=name;document.body.classList.remove('locked');applyRole();
+  $('#aPass').value='';$('#aConf').value='';render();
+}
+async function submitAuth(){
+  const email=$('#aEmail').value.trim().toLowerCase(),pw=$('#aPass').value,rem=$('#aRem').checked;
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return msg('Enter a valid email address.');
+  if(pw.length<6)return msg('Password must be at least 6 characters.');
+  const users=getUsers();
+  if(mode==='up'){
+    const name=$('#aName').value.trim();
+    if(!name)return msg('Please enter your name.');
+    if(pw!==$('#aConf').value)return msg('Passwords do not match.');
+    if(users[email])return msg('An account with this email already exists. Please sign in.');
+    const salt=Math.random().toString(36).slice(2);
+    users[email]={name,salt,hash:await hashPw(pw,salt)};saveUsers(users);
+    msg('Account created!',true);enter(email,name,rem);
+  }else{
+    const u=users[email];
+    if(u&&u.google&&!u.hash)return msg('This account uses Google sign-in. Please use the Google button.');
+    if(!u||u.hash!==await hashPw(pw,u.salt))return msg('Incorrect email or password.');
+    enter(email,u.name,rem);
+  }
+}
+function logout(){
+  store.removeItem(SESSION_KEY);sessionStorage.removeItem(SESSION_KEY);
+  document.querySelector('aside button[data-v="dash"]').click();
+  document.body.classList.add('locked');applyRole();setMode('in');msg('You have been signed out.',true);
+}
+$('#tabIn').addEventListener('click',()=>setMode('in'));
+$('#tabUp').addEventListener('click',()=>setMode('up'));
+$('#aGo').addEventListener('click',submitAuth);
+$('#auth').addEventListener('keydown',e=>{if(e.key==='Enter')submitAuth()});
+$('#logout').addEventListener('click',logout);
+$('#togPw').addEventListener('click',()=>{const p=$('#aPass'),s=p.type==='password';p.type=s?'text':'password';$('#aConf').type=p.type;$('#togPw').textContent=s?'Hide':'Show'});
+$('#demoFill').addEventListener('click',()=>{$('#aEmail').value='demo@trendiq.com';$('#aPass').value='demo123'});
+/* ---------- Google sign-in ---------- */
+// Paste your OAuth Web Client ID here (Google Cloud Console > Credentials). Leave empty for demo mode.
+const GOOGLE_CLIENT_ID='';
+function jwtPayload(t){const b=t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');const bin=atob(b);return JSON.parse(new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0))))}
+function googleLogin(email,name){
+  email=email.trim().toLowerCase();
+  const users=getUsers();
+  if(!users[email]){users[email]={name,google:true};saveUsers(users);}
+  enter(email,users[email].name||name,true);
+}
+function onGoogleCredential(r){
+  try{const p=jwtPayload(r.credential);googleLogin(p.email,p.name||p.email)}catch(e){msg('Google sign-in failed. Try again.')}
+}
+if(GOOGLE_CLIENT_ID){
+  $('#gBtn').classList.add('hide');
+  const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;
+  sc.onload=()=>{google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:onGoogleCredential});google.accounts.id.renderButton($('#gReal'),{theme:'outline',size:'large',width:340,text:'continue_with'})};
+  sc.onerror=()=>{$('#gBtn').classList.remove('hide');msg('Could not load Google. Check internet / run via http(s).')};
+  document.head.appendChild(sc);
+}else{
+  $('#gBtn').addEventListener('click',()=>$('#gDemo').classList.toggle('hide'));
+  $('#gGo').addEventListener('click',()=>{
+    const e=$('#gEmail').value.trim(),n=$('#gName').value.trim()||e.split('@')[0];
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e))return msg('Enter a valid Google email.');
+    googleLogin(e,n);
+  });
+}
+
+/* ---------- admin ---------- */
+const ADMIN_EMAIL='selvakumarselva59881@gmail.com';
+const curEmail=()=>{try{return(JSON.parse(store.getItem(SESSION_KEY)||sessionStorage.getItem(SESSION_KEY))||{}).email||''}catch(e){return''}};
+function applyRole(){
+  const isAdmin=curEmail()===ADMIN_EMAIL;
+  $('#adminBtn').classList.toggle('hide',!isAdmin);
+  if(!isAdmin)$('#admin').classList.add('hide');
+}
+function renderUsers(){
+  if(curEmail()!==ADMIN_EMAIL)return;
+  const u=getUsers(),list=Object.entries(u);
+  $('#uCount').textContent=list.length+' user'+(list.length===1?'':'s');
+  const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  $('#uBody').innerHTML=list.map(([e,v])=>`<tr><td>${esc(v.name||'-')}</td><td>${esc(e)}</td><td>${e===ADMIN_EMAIL?'<span class="badge Positive">Admin</span>':v.google?'Google':'Email'}</td><td>${e===ADMIN_EMAIL||e==='demo@trendiq.com'?'':`<button class="btn alt" data-del="${esc(e)}" type="button" style="padding:5px 10px">Remove</button>`}</td></tr>`).join('')||'<tr><td colspan="4">No users yet.</td></tr>';
+}
+$('#uBody').addEventListener('click',e=>{const d=e.target.dataset.del;if(!d||curEmail()!==ADMIN_EMAIL)return;const u=getUsers();delete u[d];saveUsers(u);renderUsers()});
+
+(async()=>{
+  await seedDemo();
+  let s=null;try{s=JSON.parse(store.getItem(SESSION_KEY)||sessionStorage.getItem(SESSION_KEY))}catch(e){}
+  if(s&&getUsers()[s.email]){$('#uName').textContent=s.name;document.body.classList.remove('locked');applyRole();}
+})();
+</script>
+</body>
+</html>
